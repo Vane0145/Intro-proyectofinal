@@ -88,34 +88,29 @@ def modificar_contacto(agenda, nombre_archivo):
     os.system('cls')
     print('*** Mis Contactos ***')
     print('*** MODIFICAR ***')
-    if len(agenda) >= 0:
+    if len(agenda) > 0:
         nombre = input('Digite un nombre: ')
         cuentacont = 0
-        for contacto,datos in agenda.items():
+        for contacto, datos in agenda.items():
             if nombre in contacto:
                 print(f'Nombre: {contacto}')
                 print(f'Teléfono: {datos[0]}')
                 print(f'Correo: {datos[1]}')
                 print('^.^''o.o'*3)
-                cuentacont+=1
+                cuentacont += 1
                 telefono_search = datos[0]
                 email_search = datos[1]
-                for contacto,datos in agenda.items():
-                    if nombre in contacto:
-                        telefono = input('Digite el nuevo número de telefono: ')
-                        email = input(' Digite el nuevo correo electronico: ')
-                        with open(nombre_archivo, 'r') as archivo:
-                            data = archivo.read()
-                            data = data.replace(telefono_search, telefono)
-                            data = data.replace(email_search, email)
-                        with open(nombre_archivo, 'w')as archivo:
-                            archivo.write(data)
-                            archivo.close()
-                            print('Contacto actualizado con éxito...')
-            if cuentacont == 0:
-                print('No se encontro el contacto.')
-            else:
-                print(f'Se encontraron {cuentacont} contactos.')
+                nuevo_telefono = input('Digite el nuevo número de teléfono: ')
+                nuevo_email = input('Digite el nuevo correo electrónico: ')
+                agenda[contacto] = (nuevo_telefono, nuevo_email)
+                with open(nombre_archivo, 'r') as archivo:
+                    data = archivo.read()
+                    data = data.replace(f'{contacto},{telefono_search},{email_search}', f'{contacto},{nuevo_telefono},{nuevo_email}')
+                with open(nombre_archivo, 'w') as archivo:
+                    archivo.write(data)
+                print('Contacto actualizado con éxito...')
+        if cuentacont == 0:
+            print('No se encontró el contacto.')
     else:
         print('No hay contactos registrados.')
 
@@ -141,52 +136,25 @@ def buscar_contacto(agenda):
     else: 
         print('No hay contactos registrados.')
 
-#Funcion eliminar
-# Numero 1
-# En este código, estás reinicializando la variable agenda como un diccionario vacío cada vez que encuentras un contacto para eliminarlo.
-# Esto significa que, en lugar de eliminar el contacto, estás borrando toda la agenda y, por lo tanto, no se elimina nada realmente. 
-# Esto ocurre debido a la línea agenda = dict() dentro del bucle for.
-
-# 2
-
-# La Lectura y escritura del archivo incorrectas Por qué : Estás abriendo el archivo "agenda.txt" en modo lectura dentro del bucle for y, 
-# además, estás tratando de actualizar el diccionario agenda y el archivo al mismo tiempo. Esto no es necesario ni eficiente. 
-# Además, no es adecuado abrir el archivo en modo lectura dentro de un bucle de eliminación.
-
-# 3
-
-# Eliminación incorrecta de contactos: Por qué Estás utilizando agenda.pop(nombre) dentro del bucle for, 
-# lo que no eliminará el contacto del diccionario ni del archivo. 
-# Además, la lógica de eliminación es confusa.
-
-## La solucion esta en el archivo agenda.py .!! ♥
-
-def eliminar_contacto(agenda):
+#  Delete contact
+def eliminar_contacto(agenda, nombre_archivo):
     os.system('cls')
     print('*** MiS Contactos ***')
     print('*** ELIMINAR ***')
-    if len(agenda) >= 0:
+    if len(agenda) > 0:
         nombre = input('Digite un nombre: ')
-        cuentacont = 0
-        for contacto,datos in agenda.items():
-            if nombre in contacto:
-                print(f'Nombre: {contacto}')
-                print(f'Teléfono: {datos[0]}')
-                print(f'Correo: {datos[1]}')
-                print('^.^''o.o'*3)
-                cuentacont +=1
-                agenda = dict()
-                nombre_archivo = 'agenda.txt'
-                with open(nombre_archivo, 'r') as archivo:
-                    for line in archivo:
-                        contacto,telefono,email = line.strip().split(',')
-                        agenda.setdefault(contacto, (telefono,email))
-                        agenda.pop(nombre)
-        if cuentacont == 0:
-            print('No se encontro el contacto.')
+        if nombre in agenda:
+            contacto_eliminado = agenda.pop(nombre)
+            with open(nombre_archivo, 'r') as archivo:
+                lineas = archivo.readlines()
+            with open(nombre_archivo, 'w') as archivo:
+                for linea in lineas:
+                    if f'{nombre},' not in linea:
+                        archivo.write(linea)
+            print(f'Contacto eliminado con éxito:\nNombre: {nombre}\nTeléfono: {contacto_eliminado[0]}\nCorreo: {contacto_eliminado[1]}')
         else:
-            print(f' Se encontraron {cuentacont} contactos.') 
-    else: 
+            print('No se encontró el contacto.')
+    else:
         print('No hay contactos registrados.')
 
 input('*** Bienvenido(a) a tu agenda personal***')
@@ -210,7 +178,7 @@ def main():
             elif opc == BUSCAR:
                 buscar_contacto(agenda)
             elif opc == ELIMINAR:
-                eliminar_contacto(agenda)
+                eliminar_contacto(agenda, nombre_archivo)
             elif opc == SALIR:
                 continuar = False
             else:
